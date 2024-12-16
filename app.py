@@ -9,13 +9,7 @@ st.title("Google Form Responses Dashboard")
 st.write("""
 Welcome to the **Product Distribution Dashboard**!  
 This dashboard provides an analysis of product distribution data collected via Google Forms.  
-Below, you will find interactive visualizations showcasing key insights:
-1. **Product Distribution Overview**: Total products distributed across various product types.
-2. **Location Analysis**: Breakdown of product distribution across locations.
-3. **Trends Over Time**: Insights into how product distribution has varied over time.
-4. **Top Contributors**: Highlighting the individuals who have distributed the most products.
-5. **Heatmap Analysis**: A detailed visualization of product type distributions by location.
-6. **Specific Product Insights**: Sum of products distributed for a selected product type.
+Below, you will find interactive visualizations showcasing key insights.
 """)
 
 # Google Sheets Public URL
