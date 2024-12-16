@@ -29,6 +29,15 @@ fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
               labels={'Product type:': 'Product Type', 'How many?': 'Total Distribution'})
 st.plotly_chart(fig1)
 
+# Summary Table: Total Products Distributed by Product Type
+st.subheader("Summary Table: Total Products Distributed by Product Type")
+summary_table = product_type_total.copy()
+summary_table.loc['Grand Total'] = summary_table.sum(numeric_only=True)
+summary_table.loc['Grand Total', 'Product type:'] = 'Grand Total'
+
+# Display the table in Streamlit
+st.table(summary_table)
+
 # Bar Chart: Total Products Distributed by Location (Where?)
 st.subheader("Total Products Distributed by Location")
 location_total = df.groupby('Where?')['How many?'].sum().reset_index()
