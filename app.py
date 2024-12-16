@@ -21,22 +21,26 @@ df['How many?'] = pd.to_numeric(df['How many?'], errors='coerce')
 # Drop rows where 'How many?' is NaN (invalid entries)
 df = df.dropna(subset=['How many?'])
 
+# Summary Table: Total Products Distributed by Product Type
+st.subheader("Summary Table: Total Products Distributed by Product Type")
+product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
+summary_table = product_type_total.copy()
+summary_table.loc['Grand Total'] = summary_table.sum(numeric_only=True)
+summary_table.loc['Grand Total', 'Product type:'] = 'Grand Total'
+st.table(summary_table)
+
+# Sum for Specific Product Type
+st.subheader("Sum of 'How many?' for Specific Product Types")
+product_type = 'Condoms (& lube)'  # Change this to any product type
+specific_sum = df[df['Product type:'] == product_type]['How many?'].sum()
+st.write(f"**Total for '{product_type}': {specific_sum}**")
+
 # Bar Chart: Total Products Distributed by Product Type
 st.subheader("Total Products Distributed by Product Type")
-product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
 fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
               title="Total Products Distributed by Product Type",
               labels={'Product type:': 'Product Type', 'How many?': 'Total Distribution'})
 st.plotly_chart(fig1)
-
-# Summary Table: Total Products Distributed by Product Type
-st.subheader("Summary Table: Total Products Distributed by Product Type")
-summary_table = product_type_total.copy()
-summary_table.loc['Grand Total'] = summary_table.sum(numeric_only=True)
-summary_table.loc['Grand Total', 'Product type:'] = 'Grand Total'
-
-# Display the table in Streamlit
-st.table(summary_table)
 
 # Bar Chart: Total Products Distributed by Location (Where?)
 st.subheader("Total Products Distributed by Location")
