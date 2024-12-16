@@ -21,25 +21,22 @@ df['How many?'] = pd.to_numeric(df['How many?'], errors='coerce')
 # Drop rows where 'How many?' is NaN (invalid entries)
 df = df.dropna(subset=['How many?'])
 
-# Summary Table: Total Products Distributed by Product Type
-st.subheader("Summary Table: Total Products Distributed by Product Type")
+# Bar Chart: Total Products Distributed by Product Type + Grand Total
+st.subheader("Total Products Distributed by Product Type (Including Grand Total)")
 product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
-summary_table = product_type_total.copy()
-summary_table.loc['Grand Total'] = summary_table.sum(numeric_only=True)
-summary_table.loc['Grand Total', 'Product type:'] = 'Grand Total'
-st.table(summary_table)
 
-# Sum for Specific Product Type
-st.subheader("Sum of 'How many?' for Specific Product Types")
-product_type = 'Condoms (& lube)'  # Change this to any product type
-specific_sum = df[df['Product type:'] == product_type]['How many?'].sum()
-st.write(f"**Total for '{product_type}': {specific_sum}**")
+# Add a 'Grand Total' row as a new bar
+grand_total = product_type_total['How many?'].sum()
+product_type_total = product_type_total.append({'Product type:': 'Grand Total', 'How many?': grand_total}, ignore_index=True)
 
-# Bar Chart: Total Products Distributed by Product Type
-st.subheader("Total Products Distributed by Product Type")
+# Plot the bar chart
 fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
-              title="Total Products Distributed by Product Type",
-              labels={'Product type:': 'Product Type', 'How many?': 'Total Distribution'})
+              title="Total Products Distributed (Including Grand Total)",
+              labels={'Product type:': 'Product Type', 'How many?': 'Total Distribution'},
+              text='How many?')
+
+# Adjust bar chart to show text outside bars for better readability
+fig1.update_traces(textposition='outside')
 st.plotly_chart(fig1)
 
 # Bar Chart: Total Products Distributed by Location (Where?)
@@ -47,7 +44,9 @@ st.subheader("Total Products Distributed by Location")
 location_total = df.groupby('Where?')['How many?'].sum().reset_index()
 fig2 = px.bar(location_total, x='Where?', y='How many?',
               title="Total Products Distributed by Location",
-              labels={'Where?': 'Location', 'How many?': 'Total Distribution'})
+              labels={'Where?': 'Location', 'How many?': 'Total Distribution'},
+              text='How many?')
+fig2.update_traces(textposition='outside')
 st.plotly_chart(fig2)
 
 # Line Chart: Distribution Trends Over Time
@@ -66,7 +65,9 @@ distributor_total = df.groupby('Your name:')['How many?'].sum().reset_index()
 top_distributors = distributor_total.sort_values(by='How many?', ascending=False).head(10)
 fig4 = px.bar(top_distributors, x='Your name:', y='How many?',
               title="Top 10 Distributors",
-              labels={'Your name:': 'Distributor Name', 'How many?': 'Total Distribution'})
+              labels={'Your name:': 'Distributor Name', 'How many?': 'Total Distribution'},
+              text='How many?')
+fig4.update_traces(textposition='outside')
 st.plotly_chart(fig4)
 
 # Heatmap: Product Type vs Location
