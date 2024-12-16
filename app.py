@@ -25,10 +25,7 @@ df = df.dropna(subset=['How many?'])
 st.subheader("Total Products Distributed by Product Type (Including Grand Total)")
 product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
 
-# Add a 'Grand Total' row using pd.concat
-grand_total = product_type_total['How many?'].sum()
-grand_total_row = pd.DataFrame([{'Product type:': 'Grand Total', 'How many?': grand_total}])
-product_type_total = pd.concat([product_type_total, grand_total_row], ignore_index=True)
+
 
 # Plot the bar chart
 fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
