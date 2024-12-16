@@ -25,9 +25,10 @@ df = df.dropna(subset=['How many?'])
 st.subheader("Total Products Distributed by Product Type (Including Grand Total)")
 product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
 
-# Add a 'Grand Total' row as a new bar
+# Add a 'Grand Total' row using pd.concat
 grand_total = product_type_total['How many?'].sum()
-product_type_total = product_type_total.append({'Product type:': 'Grand Total', 'How many?': grand_total}, ignore_index=True)
+grand_total_row = pd.DataFrame([{'Product type:': 'Grand Total', 'How many?': grand_total}])
+product_type_total = pd.concat([product_type_total, grand_total_row], ignore_index=True)
 
 # Plot the bar chart
 fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
@@ -76,3 +77,9 @@ pivot_data = df.pivot_table(index='Where?', columns='Product type:', values='How
 fig5 = px.imshow(pivot_data, title="Heatmap: Product Type vs Location", 
                  labels=dict(color="Quantity"), aspect="auto")
 st.plotly_chart(fig5)
+
+# Sum for Specific Product Type (Optional Section)
+st.subheader("Sum of 'How many?' for Specific Product Types")
+product_type = 'Condoms (& lube)'  # Product type to check
+specific_sum = df[df['Product type:'] == product_type]['How many?'].sum()
+st.write(f"**Total for '{product_type}': {specific_sum}**")
