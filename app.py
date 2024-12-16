@@ -15,56 +15,50 @@ df = pd.read_csv(sheet_url, header=1)  # Read the second row as the header
 # Clean column names: Strip any extra spaces or special characters
 df.columns = df.columns.str.strip()
 
-# Convert the 'How many?' column to numeric values, handling non-numeric values (errors='coerce' will convert invalid entries to NaN)
+# Convert the 'How many?' column to numeric values, handling non-numeric values
 df['How many?'] = pd.to_numeric(df['How many?'], errors='coerce')
 
-# Group by 'Product type:' and calculate the sum of 'How many?' to get the total number of products distributed by product type
-product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
+# Drop rows where 'How many?' is NaN (invalid entries)
+df = df.dropna(subset=['How many?'])
 
-# Plot bar chart for total number of products distributed by product type
+# Bar Chart: Total Products Distributed by Product Type
 st.subheader("Total Products Distributed by Product Type")
-fig1 = px.bar(product_type_total, x='Product type:', y='How many?', 
-              title="Total Products Distributed by Product Type", 
+product_type_total = df.groupby('Product type:')['How many?'].sum().reset_index()
+fig1 = px.bar(product_type_total, x='Product type:', y='How many?',
+              title="Total Products Distributed by Product Type",
               labels={'Product type:': 'Product Type', 'How many?': 'Total Distribution'})
 st.plotly_chart(fig1)
 
-# 2. Visualize Distribution Locations (Where?)
-location_count = df['Where?'].value_counts().reset_index()
-location_count.columns = ['Location', 'Count']
-
-# Plot bar chart for Locations
-st.subheader("Distribution Locations")
-fig2 = px.bar(location_count, x='Location', y='Count', 
-              title="Distribution Count by Location", 
-              labels={'Location': 'Location', 'Count': 'Distribution Count'})
+# Bar Chart: Total Products Distributed by Location (Where?)
+st.subheader("Total Products Distributed by Location")
+location_total = df.groupby('Where?')['How many?'].sum().reset_index()
+fig2 = px.bar(location_total, x='Where?', y='How many?',
+              title="Total Products Distributed by Location",
+              labels={'Where?': 'Location', 'How many?': 'Total Distribution'})
 st.plotly_chart(fig2)
 
-# 3. Visualize Total Distribution Over Time (by Date of Distribution)
+# Line Chart: Distribution Trends Over Time
 if 'Date of distribution' in df.columns:
-    # Convert 'Date of distribution' to datetime, handle errors if the column has incorrect formats
+    st.subheader("Product Distribution Over Time")
     df['Date of distribution'] = pd.to_datetime(df['Date of distribution'], errors='coerce')
-    
-    # Drop rows where 'Date of distribution' or 'How many?' is NaT or NaN
-    df_clean = df.dropna(subset=['Date of distribution', 'How many?'])
-    
-    # Group by date and sum the 'How many?' values for total distribution on that date
-    df_grouped_by_date = df_clean.groupby('Date of distribution').agg({'How many?': 'sum'}).reset_index()
-
-    # Plot time series for total distribution over time
-    st.subheader("Total Distribution Over Time")
-    fig3 = px.line(df_grouped_by_date, x='Date of distribution', y='How many?', 
-                   title="Total Products Distributed Over Time", 
-                   labels={'Date of distribution': 'Date', 'How many?': 'Total Count'})
+    time_total = df.groupby('Date of distribution')['How many?'].sum().reset_index()
+    fig3 = px.line(time_total, x='Date of distribution', y='How many?',
+                   title="Product Distribution Trends Over Time",
+                   labels={'Date of distribution': 'Date', 'How many?': 'Total Distribution'})
     st.plotly_chart(fig3)
 
-# 4. Visualize Top Distribution Names (Who Distributed the Products)
-name_count = df['Your name:'].value_counts().reset_index()
-name_count.columns = ['Name', 'Distribution Count']
-
-# Show top distributors
+# Bar Chart: Top Distributors
 st.subheader("Top Distributors")
-top_names = name_count.head(10)  # Top 10 distributors
-fig4 = px.bar(top_names, x='Name', y='Distribution Count', 
-              title="Top 10 Distributors", 
-              labels={'Name': 'Distributor Name', 'Distribution Count': 'Distribution Count'})
+distributor_total = df.groupby('Your name:')['How many?'].sum().reset_index()
+top_distributors = distributor_total.sort_values(by='How many?', ascending=False).head(10)
+fig4 = px.bar(top_distributors, x='Your name:', y='How many?',
+              title="Top 10 Distributors",
+              labels={'Your name:': 'Distributor Name', 'How many?': 'Total Distribution'})
 st.plotly_chart(fig4)
+
+# Heatmap: Product Type vs Location
+st.subheader("Product Distribution by Location and Type")
+pivot_data = df.pivot_table(index='Where?', columns='Product type:', values='How many?', aggfunc='sum', fill_value=0)
+fig5 = px.imshow(pivot_data, title="Heatmap: Product Type vs Location", 
+                 labels=dict(color="Quantity"), aspect="auto")
+st.plotly_chart(fig5)
