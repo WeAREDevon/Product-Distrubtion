@@ -69,14 +69,4 @@ fig4 = px.bar(top_distributors, x='Your name:', y='How many?',
 fig4.update_traces(textposition='outside')
 st.plotly_chart(fig4)
 
-# Heatmap: Product Type vs Location
-st.subheader("Product Distribution Heatmap by Location and Type")
-pivot_data = df.pivot_table(index='Where?', columns='Product type:', values='How many?', aggfunc='sum', fill_value=0)
-fig5 = px.imshow(pivot_data, labels=dict(color="Quantity"), aspect="auto")
-st.plotly_chart(fig5)
 
-# Sum for Specific Product Type
-st.subheader("Sum of 'How many?' for Specific Product Types")
-product_type = 'Condoms (& lube)'  # Product type to check
-specific_sum = df[df['Product type:'] == product_type]['How many?'].sum()
-st.write(f"**Total for '{product_type}': {specific_sum}**")
